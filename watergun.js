@@ -5,7 +5,6 @@ export function createWatergun(renderer){
  const group=new THREE.Group();group.rotation.z=.11;group.scale.setScalar(.84);
  const plastic=color=>new THREE.MeshPhysicalMaterial({color,roughness:.28,metalness:0,envMapIntensity:.6,clearcoat:.8,clearcoatRoughness:.22});
  const blue=plastic(0x003bd8),edge=plastic(0x0878e9),yellow=plastic(0xffc500),orange=plastic(0xff5700),green=plastic(0x13ba08),cream=plastic(0xfff3d9),deep=plastic(0x123d81);
- const metal=new THREE.MeshStandardMaterial({color:0xb6bab2,metalness:.65,roughness:.35});
  const materials=[blue,edge,yellow,orange,green];
  function add(g,m,x=0,y=0,z=0){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);group.add(o);return o;}
  function box(w,h,d,r,m,x,y,z){return add(new RoundedBoxGeometry(w,h,d,4,r),m,x,y,z);}
@@ -45,14 +44,6 @@ export function createWatergun(renderer){
  const tip=add(new THREE.SphereGeometry(.19,48,24),green,-2.43,.31,0);tip.scale.x=.47;
  cylinder(.058,.005,deep,-2.521,.31,0);const lip=add(new THREE.TorusGeometry(.067,.013,12,40),green,-2.529,.31,0);lip.rotation.y=Math.PI/2;
  for(const [x,r] of [[-1.81,.29],[-2.23,.23]])for(let i=0;i<16;i++){const a=i/16*Math.PI*2;const rib=box(.065,.017,.029,.004,cream,x,.31+Math.sin(a)*r,Math.cos(a)*r);rib.rotation.x=-a;}
- // Sliding lower handle, exposed connector and ribbed grip.
- cylinder(.086,.57,metal,-.52,-1.05,0);
- cylinder(.195,.88,green,-1.24,-1.05,0);
- cylinder(.255,.15,green,-1.73,-1.05,0);
- const end=add(new THREE.TorusGeometry(.183,.052,12,48),green,-1.825,-1.05,0);end.rotation.y=Math.PI/2;
- cylinder(.115,.012,deep,-1.813,-1.05,0);
- for(let i=0;i<9;i++){const r=add(new THREE.TorusGeometry(.196,.012,8,40),green,-1.61+i*.088,-1.05,0);r.rotation.y=Math.PI/2;}
- box(.23,.20,.32,.045,blue,-.23,-.91,0);
  // Artwork is drawn locally, with layered printed-label edges.
  function tex(draw,w=768,h=512){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;}
  function sticker(t,w,h,x,y,z,angle=0){const p=add(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.55,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}),x,y,z);p.rotation.z=angle;return p;}
