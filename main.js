@@ -80,6 +80,7 @@ const grenade=createGrenade(renderer);scene.add(grenade.group);grenade.group.vis
 const watergun=createWatergun(renderer);scene.add(watergun.group);watergun.group.visible=false;
 let activeModel='amber';
 const models=new Map([['amber',{group:object}],['grenade',grenade],['watergun',watergun]]);
+for(const data of catalog){const model=models.get(data.id);if(model&&data.rotation)model.group.rotation.set(...data.rotation);}
 let selectionVersion=0;
 let idleMotion=false,motionTime=0;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
@@ -121,9 +122,30 @@ async function selectModel(id){
 const shelf=document.querySelector('.showcase-items');shelf.replaceChildren();
 shelf.addEventListener('wheel',event=>{if(event.ctrlKey||shelf.scrollWidth<=shelf.clientWidth||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;event.preventDefault();shelf.scrollLeft+=event.deltaY;},{passive:false});
 document.querySelector('.showcase-title').textContent='COLLECTION / '+String(catalog.length).padStart(2,'0')+' / 17';
+// Render each built-in thumbnail from the same pose and lighting as the main view.
+function modelThumbnail(data){
+ const model=models.get(data.id);if(!model)return data.thumbnail;
+ const size=renderer.getSize(new THREE.Vector2()),pixelRatio=renderer.getPixelRatio();
+ const visibility=new Map([...models.values()].map(item=>[item.group,item.group.visible]));
+ const shadowVisible=shadow.visible;
+ try{
+  models.forEach(item=>item.group.visible=item===model);shadow.visible=false;
+  model.group.updateMatrixWorld(true);
+  const bounds=new THREE.Box3().setFromObject(model.group),sphere=bounds.getBoundingSphere(new THREE.Sphere());
+  const previewCamera=new THREE.PerspectiveCamera(30,1,.1,100);
+  const direction=new THREE.Vector3(...data.camera).sub(new THREE.Vector3(0,.1,0)).normalize();
+  previewCamera.position.copy(sphere.center).addScaledVector(direction,sphere.radius/Math.sin(Math.PI/12)*1.06);
+  previewCamera.lookAt(sphere.center);
+  renderer.setPixelRatio(1);renderer.setSize(256,256,false);renderer.render(scene,previewCamera);
+  return renderer.domElement.toDataURL('image/png');
+ }finally{
+  visibility.forEach((visible,group)=>group.visible=visible);shadow.visible=shadowVisible;
+  renderer.setPixelRatio(pixelRatio);renderer.setSize(size.x,size.y);
+ }
+}
 for(const [index,data] of catalog.entries()){
  const button=document.createElement('button');button.dataset.model=data.id;button.setAttribute('aria-label','切换 '+data.title.join(' '));button.setAttribute('aria-pressed','false');
- const img=document.createElement('img');img.src=data.thumbnail;img.alt=data.title.join(' ');const label=document.createElement('span');label.textContent=String(index+1).padStart(2,'0')+' / '+(data.label||data.id).toUpperCase();button.append(img,label);button.onclick=()=>selectModel(data.id);shelf.append(button);
+ const img=document.createElement('img');img.src=modelThumbnail(data);img.alt=data.title.join(' ');const label=document.createElement('span');label.textContent=String(index+1).padStart(2,'0')+' / '+(data.label||data.id).toUpperCase();button.append(img,label);button.onclick=()=>selectModel(data.id);shelf.append(button);
 }
 await selectModel(catalog.find(m=>m.id==='watergun')?.id||catalog[0].id);
 window.bootProgress?.(85,'RENDERING FIRST FRAME');
