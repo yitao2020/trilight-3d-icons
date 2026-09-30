@@ -6,6 +6,7 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {createGrenade} from './grenade.js';
 import {createWatergun} from './watergun.js';
+import {createAmberFinish} from './amber-finish.js';
 
 const catalogResponse=await fetch(typeof __CATALOG_URL__==='undefined'?'./models.json':__CATALOG_URL__);
 if(!catalogResponse.ok)throw Error('Cannot load models.json');
@@ -78,6 +79,7 @@ const shadowTexture=texture((c,w,h)=>{const g=c.createRadialGradient(w/2,h/2,0,w
 const shadow=mesh(new THREE.PlaneGeometry(4.5,3),new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthWrite:false}),0,-1.65,0,scene);shadow.rotation.x=-Math.PI/2;
 const grenade=createGrenade(renderer);scene.add(grenade.group);grenade.group.visible=false;
 const watergun=createWatergun(renderer);scene.add(watergun.group);watergun.group.visible=false;
+const amberFinish=createAmberFinish(object,{amber,rim,dark,metal},renderer);
 let activeModel='amber';
 const models=new Map([['amber',{group:object}],['grenade',grenade],['watergun',watergun]]);
 for(const data of catalog){const model=models.get(data.id);if(model&&data.rotation)model.group.rotation.set(...data.rotation);}
@@ -95,7 +97,9 @@ function reset(){idleMotion=false;const group=models.get(activeModel)?.group;if(
 function layout(){const {width:w,height:h}=stage.getBoundingClientRect();if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad((innerWidth<=1199?28:29)/2))/Math.min(1,(w/h)/.8)));if(innerWidth>1199&&innerHeight>600)camera.setViewOffset(w,h,-w*.11,0,w,h);camera.updateProjectionMatrix();document.querySelector('.hint').textContent=matchMedia('(pointer:coarse)').matches?'\u5355\u6307\u65cb\u8f6c \u00b7 \u53cc\u6307\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d':'\u62d6\u62fd\u65cb\u8f6c \u00b7 \u6eda\u8f6e\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d';}layout();new ResizeObserver(layout).observe(stage);addEventListener('resize',layout);
 const rotate=document.querySelector('#rotate');rotate.onclick=()=>setIdleMotion(!idleMotion);
 document.querySelector('#reset').onclick=reset;renderer.domElement.addEventListener('dblclick',reset);
-function glass(on){document.querySelector('#glass').setAttribute('aria-pressed',on);if(activeModel==='amber'){amber.transmission=on?.78:.48;amber.roughness=on?.12:.19;rim.transmission=on?.52:.18;}else models.get(activeModel)?.setGlass?.(on);}
+const finishButton=document.querySelector('#realism');
+finishButton.onclick=()=>{amberFinish.setEnabled(!amberFinish.enabled);finishButton.setAttribute('aria-pressed',String(amberFinish.enabled));};
+function glass(on){document.querySelector('#glass').setAttribute('aria-pressed',on);if(activeModel==='amber'){amber.transmission=on?.78:.48;amber.roughness=on?.12:.19;rim.transmission=on?.52:.18;amberFinish.setGlass(on);}else models.get(activeModel)?.setGlass?.(on);}
 document.querySelector('#glass').onclick=e=>glass(e.target.getAttribute('aria-pressed')!=='true');
 async function selectModel(id){
  const data=catalog.find(m=>m.id===id);if(!data)return;
@@ -110,7 +114,7 @@ async function selectModel(id){
    if(data.rotation)root.rotation.set(...data.rotation);root.visible=false;scene.add(root);models.set(id,{group:root});
   }
   if(version!==selectionVersion)return;
-  activeModel=id;models.forEach((m,key)=>m.group.visible=key===id);
+  activeModel=id;finishButton.disabled=id!=='amber';finishButton.setAttribute('aria-pressed',String(id==='amber'&&amberFinish.enabled));finishButton.title=id==='amber'?'':'Amber material study';models.forEach((m,key)=>m.group.visible=key===id);
   const title=document.querySelector('h1');title.replaceChildren();data.title.forEach((line,i)=>{if(i)title.append(document.createElement('br'));const part=document.createElement('span');part.textContent=line;title.append(part);});
   const desc=document.querySelector('.info p');desc.replaceChildren();(data.description||[]).forEach((line,i)=>{if(i)desc.append(document.createElement('br'));desc.append(document.createTextNode(line));});
   document.querySelector('.edition').textContent='OBJECT STUDY / '+String(catalog.indexOf(data)+1).padStart(3,'0')+' / TRILIGHTLAB';
