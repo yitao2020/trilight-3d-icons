@@ -5,6 +5,7 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {createGrenade} from './grenade.js';
+import {createWatergun} from './watergun.js';
 
 const catalogResponse=await fetch(typeof __CATALOG_URL__==='undefined'?'./models.json':__CATALOG_URL__);
 if(!catalogResponse.ok)throw Error('Cannot load models.json');
@@ -75,8 +76,9 @@ const key=new THREE.DirectionalLight(0xffe8c6,1.25);key.position.set(-3,5,4);sce
 const shadowTexture=texture((c,w,h)=>{const g=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'rgba(0,0,0,.55)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,w,h);},256,256);
 const shadow=mesh(new THREE.PlaneGeometry(4.5,3),new THREE.MeshBasicMaterial({map:shadowTexture,transparent:true,depthWrite:false}),0,-1.65,0,scene);shadow.rotation.x=-Math.PI/2;
 const grenade=createGrenade(renderer);scene.add(grenade.group);grenade.group.visible=false;
+const watergun=createWatergun(renderer);scene.add(watergun.group);watergun.group.visible=false;
 let activeModel='amber';
-const models=new Map([['amber',{group:object}],['grenade',grenade]]);
+const models=new Map([['amber',{group:object}],['grenade',grenade],['watergun',watergun]]);
 let selectionVersion=0;
 function reset(){controls.autoRotate=false;const btn=document.querySelector('#rotate');btn.textContent='\u81ea\u52a8\u65cb\u8f6c';btn.setAttribute('aria-pressed','false');camera.position.set(...(catalog.find(m=>m.id===activeModel)?.camera||[-2.35,1.7,8.3]));controls.target.set(0,.1,0);controls.update();}reset();
 function layout(){const {width:w,height:h}=stage.getBoundingClientRect();if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad((innerWidth<=1199?28:34)/2))/Math.min(1,(w/h)/.8)));if(innerWidth>1199&&innerHeight>600)camera.setViewOffset(w,h,-w*.11,0,w,h);camera.updateProjectionMatrix();document.querySelector('.hint').textContent=matchMedia('(pointer:coarse)').matches?'\u5355\u6307\u65cb\u8f6c \u00b7 \u53cc\u6307\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d':'\u62d6\u62fd\u65cb\u8f6c \u00b7 \u6eda\u8f6e\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d';}layout();new ResizeObserver(layout).observe(stage);addEventListener('resize',layout);
@@ -102,6 +104,7 @@ async function selectModel(id){
   const desc=document.querySelector('.info p');desc.replaceChildren();(data.description||[]).forEach((line,i)=>{if(i)desc.append(document.createElement('br'));desc.append(document.createTextNode(line));});
   document.querySelector('.edition').textContent='OBJECT STUDY / '+String(catalog.indexOf(data)+1).padStart(3,'0')+' / TRILIGHTLAB';
   document.querySelectorAll('[data-model]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.model===id));
+  document.querySelector('[data-model="'+id+'"]')?.scrollIntoView({block:'nearest',inline:'nearest'});
   document.querySelector('#glass').disabled=data.type==='glb';glass(false);reset();status.textContent='LIVE 3D';
  }catch(error){if(version===selectionVersion)status.textContent='加载失败，请重试';console.error(error);}
 }
@@ -111,7 +114,7 @@ for(const [index,data] of catalog.entries()){
  const button=document.createElement('button');button.dataset.model=data.id;button.setAttribute('aria-label','切换 '+data.title.join(' '));button.setAttribute('aria-pressed','false');
  const img=document.createElement('img');img.src=data.thumbnail;img.alt=data.title.join(' ');const label=document.createElement('span');label.textContent=String(index+1).padStart(2,'0')+' / '+(data.label||data.id).toUpperCase();button.append(img,label);button.onclick=()=>selectModel(data.id);shelf.append(button);
 }
-selectModel(catalog.find(m=>m.id==='grenade')?.id||catalog[0].id);
+selectModel(catalog.find(m=>m.id==='watergun')?.id||catalog[0].id);
 document.querySelector('#clean').onclick=e=>{const on=document.body.classList.toggle('clean');e.target.setAttribute('aria-pressed',on);e.target.textContent=on?'显示界面':'纯净展示';};
 document.querySelector('#save').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='trilight-'+activeModel+'.png';a.href=renderer.domElement.toDataURL('image/png');a.click();};
 const clock=new THREE.Clock();renderer.setAnimationLoop(()=>{const t=clock.getElapsedTime();const current=models.get(activeModel).group;current.position.y=controls.autoRotate?Math.sin(t*.8)*.035:0;controls.update();renderer.render(scene,camera);});
