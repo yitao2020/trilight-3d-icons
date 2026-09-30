@@ -3,8 +3,8 @@ import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 
 export function createWatergun(renderer){
  const group=new THREE.Group();group.rotation.z=.11;group.scale.setScalar(.84);
- const plastic=color=>new THREE.MeshPhysicalMaterial({color,roughness:.28,metalness:0,clearcoat:.8,clearcoatRoughness:.22});
- const blue=plastic(0x0065ee),edge=plastic(0x168cff),yellow=plastic(0xffd500),orange=plastic(0xff6700),green=plastic(0x30d51c),cream=plastic(0xfff3d9),deep=plastic(0x123d81);
+ const plastic=color=>new THREE.MeshPhysicalMaterial({color,roughness:.28,metalness:0,envMapIntensity:.6,clearcoat:.8,clearcoatRoughness:.22});
+ const blue=plastic(0x003bd8),edge=plastic(0x0878e9),yellow=plastic(0xffc500),orange=plastic(0xff5700),green=plastic(0x13ba08),cream=plastic(0xfff3d9),deep=plastic(0x123d81);
  const metal=new THREE.MeshStandardMaterial({color:0xb6bab2,metalness:.65,roughness:.35});
  const materials=[blue,edge,yellow,orange,green];
  function add(g,m,x=0,y=0,z=0){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);group.add(o);return o;}
@@ -63,5 +63,6 @@ export function createWatergun(renderer){
  const drop=tex((c)=>{c.fillStyle='#08b7c4';c.strokeStyle='#fff3dc';c.lineWidth=16;for(const [x,y,r] of [[130,160,80],[330,270,55]]){c.beginPath();c.moveTo(x,y-r);c.bezierCurveTo(x-r,y+r,x+r,y+r,x,y-r);c.fill();c.stroke();}},512,512);sticker(drop,.21,.25,-1.12,.45,.324,0);
  // A small barcode printed below the reservoir label.
  const barcode=tex((c,w,h)=>{c.fillStyle='#f4e9bb';c.fillRect(0,0,w,h);c.fillStyle='#40553e';for(let i=0;i<65;i++)if(i%3!==1)c.fillRect(12+i*7,8,2+i%4,h-16);},512,90);sticker(barcode,.50,.09,.58,.63,.447,.02);
+ for(const child of group.children){child.position.x+=.54;child.position.y-=.10;}
  return {group,setGlass(on){for(const m of materials){m.transmission=on?.32:0;m.thickness=.22;m.needsUpdate=true;}}};
 }

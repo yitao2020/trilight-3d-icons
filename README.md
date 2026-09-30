@@ -46,7 +46,7 @@ npm start
 
 ## 继续添加程序化模型
 
-现有橙色容器在 `main.js`，涂鸦手雷外观在 `grenade.js`。新建模型模块并在 main.js 的 models Map 注册 `{group, setGlass?}`，再在 models.json 增加 type 为 builtin 的条目。后续提供参考图时，可继续在本项目中制作并发布。
+现有橙色容器在 `main.js`，涂鸦手雷外观在 `grenade.js`，Aqua Blast 彩色水枪在 `watergun.js`。新建模型模块并在 main.js 的 models Map 注册 `{group, setGlass?}`，再在 models.json 增加 type 为 builtin 的条目。后续提供参考图时，可继续在本项目中制作并发布。
 
 ## 发布、检查与回退
 
