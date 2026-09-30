@@ -43,7 +43,7 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:mani
  .showcase img{height:72px}.showcase-items{max-height:115px}.showcase button{flex-basis:94px}
  .controls{left:32px;right:32px;bottom:calc(28px + var(--safe-bottom));gap:10px}
  .controls button{font-size:13px;min-height:50px}
- .hint{bottom:240px}
+ .hint{bottom:252px}
 }
 @media(max-height:600px) and (orientation:landscape){
  header{top:calc(12px + var(--safe-top));left:20px;right:20px}.edition{display:none}.brand{font-size:12px}

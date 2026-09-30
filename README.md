@@ -2,6 +2,8 @@
 
 持续维护的 Three.js 3D 图标橱窗。支持旋转、缩放、材质预览、PNG 截图和模型切换。
 
+手机与 iPad 支持横竖屏布局、触摸旋转和双指缩放。响应式样式集中在 `responsive.css`，画布根据实际可用区域调整镜头，避开标题、橱窗及底部按钮。安全区使用 CSS env；触屏上的纯净模式保留可见操作入口。
+
 - 公开展示：https://yitao2020.github.io/trilight-3d-icons/
 - 项目仓库：https://github.com/yitao2020/trilight-3d-icons
 - 模型目录：`models.json`
