@@ -1,4 +1,11 @@
 :root{--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px)}
+#intro-loader{position:fixed;inset:0;z-index:100;background:#0b0c0d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;opacity:1;transition:opacity .6s ease,visibility .6s}
+#intro-loader.is-ready{opacity:0;visibility:hidden;pointer-events:none}
+.intro-brand{font:bold 18px Arial,sans-serif;letter-spacing:4px;color:#efeee8}.intro-brand span{color:#ef982f}
+.intro-track{width:min(240px,65vw);height:2px;background:#292a28;overflow:hidden}
+#intro-progress{width:10%;height:100%;background:#ef982f;transition:width .3s ease}
+#intro-label{font:9px monospace;letter-spacing:2px;color:#96968e}
+@media(prefers-reduced-motion:reduce){#intro-loader,#intro-progress{transition:none}}
 html,body{width:100%;height:100%;overscroll-behavior:none}
 body{height:100dvh}
 button{min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
