@@ -79,7 +79,7 @@ let activeModel='amber';
 const models=new Map([['amber',{group:object}],['grenade',grenade]]);
 let selectionVersion=0;
 function reset(){controls.autoRotate=false;const btn=document.querySelector('#rotate');btn.textContent='\u81ea\u52a8\u65cb\u8f6c';btn.setAttribute('aria-pressed','false');camera.position.set(...(catalog.find(m=>m.id===activeModel)?.camera||[-2.35,1.7,8.3]));controls.target.set(0,.1,0);controls.update();}reset();
-function layout(){const {width:w,height:h}=stage.getBoundingClientRect();if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(34/2))/Math.min(1,w/h)));if(innerWidth>1199&&innerHeight>600)camera.setViewOffset(w,h,-w*.11,0,w,h);camera.updateProjectionMatrix();document.querySelector('.hint').textContent=matchMedia('(pointer:coarse)').matches?'\u5355\u6307\u65cb\u8f6c \u00b7 \u53cc\u6307\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d':'\u62d6\u62fd\u65cb\u8f6c \u00b7 \u6eda\u8f6e\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d';}layout();new ResizeObserver(layout).observe(stage);addEventListener('resize',layout);
+function layout(){const {width:w,height:h}=stage.getBoundingClientRect();if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad((innerWidth<=1199?28:34)/2))/Math.min(1,(w/h)/.8)));if(innerWidth>1199&&innerHeight>600)camera.setViewOffset(w,h,-w*.11,0,w,h);camera.updateProjectionMatrix();document.querySelector('.hint').textContent=matchMedia('(pointer:coarse)').matches?'\u5355\u6307\u65cb\u8f6c \u00b7 \u53cc\u6307\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d':'\u62d6\u62fd\u65cb\u8f6c \u00b7 \u6eda\u8f6e\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d';}layout();new ResizeObserver(layout).observe(stage);addEventListener('resize',layout);
 const rotate=document.querySelector('#rotate');rotate.onclick=()=>{controls.autoRotate=!controls.autoRotate;rotate.textContent=controls.autoRotate?'暂停旋转':'自动旋转';rotate.setAttribute('aria-pressed',controls.autoRotate);};
 document.querySelector('#reset').onclick=reset;renderer.domElement.addEventListener('dblclick',reset);
 function glass(on){document.querySelector('#glass').setAttribute('aria-pressed',on);if(activeModel==='amber'){amber.transmission=on?.78:.48;amber.roughness=on?.12:.19;rim.transmission=on?.52:.18;}else models.get(activeModel)?.setGlass?.(on);}
@@ -98,7 +98,7 @@ async function selectModel(id){
   }
   if(version!==selectionVersion)return;
   activeModel=id;models.forEach((m,key)=>m.group.visible=key===id);
-  const title=document.querySelector('h1');title.replaceChildren();data.title.forEach((line,i)=>{if(i)title.append(document.createElement('br'));title.append(document.createTextNode(line));});
+  const title=document.querySelector('h1');title.replaceChildren();data.title.forEach((line,i)=>{if(i)title.append(document.createElement('br'));const part=document.createElement('span');part.textContent=line;title.append(part);});
   const desc=document.querySelector('.info p');desc.replaceChildren();(data.description||[]).forEach((line,i)=>{if(i)desc.append(document.createElement('br'));desc.append(document.createTextNode(line));});
   document.querySelector('.edition').textContent='OBJECT STUDY / '+String(catalog.indexOf(data)+1).padStart(3,'0')+' / TRILIGHTLAB';
   document.querySelectorAll('[data-model]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.model===id));
