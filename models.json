@@ -1,5 +1,5 @@
 [
   {"id":"amber","type":"builtin","title":["Amber","Frequency."],"label":"AMBER","description":["琥珀色的声音容器。","透明树脂 / 工业结构 / 街头贴纸"],"thumbnail":"reference.png","camera":[-3.1,2.65,7.8]},
   {"id":"grenade","type":"builtin","title":["Color","Rebellion."],"label":"REBEL","description":["色彩叛逆的收藏玩具。","绿色分块外壳 / 金属拉环 / 涂鸦贴纸"],"thumbnail":"grenade-reference.png","camera":[-2.35,1.7,8.3]},
-  {"id":"watergun","type":"builtin","title":["Aqua","Blast."],"label":"AQUA","description":["把夏天装进彩色水枪。","黄色水箱 / 蓝色外壳 / 绿色握把"],"thumbnail":"watergun-reference.png","camera":[-3.7,2.5,7.7]}
+  {"id":"watergun","type":"builtin","title":["Aqua","Blast."],"label":"AQUA","description":["把夏天装进彩色水枪。","黄色水箱 / 蓝色外壳 / 绿色瓶盖"],"thumbnail":"watergun-reference.png","camera":[-3.7,2.5,7.7]}
 ]
