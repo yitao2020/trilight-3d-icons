@@ -19,6 +19,7 @@ const output=await build({entryPoints:['main.js'],outdir:'dist',entryNames:'app-
 const entry=Object.entries(output.metafile.outputs).find(([,v])=>v.entryPoint)?.[0];
 let html=await readFile('index.html','utf8');html=html.replace(/<script type="importmap">[\s\S]*?<\/script>/,'').replace('./main.js','./'+path.basename(entry));
 await writeFile('dist/index.html',html);await copyFile('models.json','dist/models.json');
+const css=await readFile('responsive.css');const cssName='responsive-'+createHash('sha256').update(css).digest('hex').slice(0,12)+'.css';await writeFile(path.join('dist',cssName),css);await writeFile('dist/index.html',html.replace('./responsive.css','./'+cssName));
 for(const model of catalog)for(const file of [model.thumbnail,...(model.type==='glb'?[model.src]:[])]){await mkdir(path.dirname(path.join('dist',file)),{recursive:true});await copyFile(file,path.join('dist',file));}
 await copyFile('node_modules/three/LICENSE','dist/THREE-LICENSE.txt');
 await writeFile('dist/.nojekyll','');console.log('Built '+catalog.length+' models into dist/');
