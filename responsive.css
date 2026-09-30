@@ -61,17 +61,17 @@ button{min-height:44px;-webkit-tap-highlight-color:transparent;touch-action:mani
 }
 @media(max-width:350px){.controls{gap:3px;left:6px;right:6px}.controls button{font-size:10px}.brand{font-size:12px}.status{font-size:8px}}
 @media(hover:none){body.clean .controls,body.clean .showcase{opacity:.85}}
-/* A single collection rail, anchored right and expanding left for 20 cards. */
+/* A 17-card rail shares the desktop baseline with the left controls. */
 .showcase-items{scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#b98132 #161819}
 .showcase button{scroll-snap-align:start}
 @media(min-width:1200px) and (min-height:601px){
- .showcase{width:min(2070px,calc(100vw - 80px));right:40px;bottom:106px;padding:12px}
+ .showcase{width:min(1752px,calc(100vw - 600px));right:40px;bottom:30px;padding:12px}
  .showcase-items{justify-content:flex-start;gap:8px}
  .showcase button{flex:0 0 94px}
  .showcase img{height:72px}
  .controls{bottom:30px;max-width:none}
  .hint{bottom:82px}
- #stage{bottom:264px;top:35px}
+ #stage{bottom:188px;top:35px}
  .info{top:20%}
 }
 @media(min-width:701px) and (max-width:1199px) and (orientation:landscape) and (min-height:601px){
