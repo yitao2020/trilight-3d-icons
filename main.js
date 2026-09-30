@@ -6,7 +6,7 @@ import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
 import {createGrenade} from './grenade.js';
 
-const catalogResponse=await fetch('./models.json');
+const catalogResponse=await fetch(typeof __CATALOG_URL__==='undefined'?'./models.json':__CATALOG_URL__);
 if(!catalogResponse.ok)throw Error('Cannot load models.json');
 const catalog=await catalogResponse.json();
 const stage=document.querySelector('#stage');

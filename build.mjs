@@ -1,6 +1,7 @@
 import {build} from 'esbuild';
 import {mkdir,readFile,writeFile,copyFile,cp,access} from 'node:fs/promises';
 import path from 'node:path';
+import {createHash} from 'node:crypto';
 const catalog=JSON.parse(await readFile('models.json','utf8'));
 const ids=new Set();
 for(const model of catalog){
@@ -13,8 +14,10 @@ for(const model of catalog){
  }
 }
 await mkdir('dist',{recursive:true});
-await build({entryPoints:['main.js'],outfile:'dist/app.js',bundle:true,minify:true,format:'esm',target:'es2022',legalComments:'eof'});
-let html=await readFile('index.html','utf8');html=html.replace(/<script type="importmap">[\s\S]*?<\/script>/,'').replace('./main.js','./app.js');
+const catalogHash=createHash('sha256').update(JSON.stringify(catalog)).digest('hex').slice(0,12);
+const output=await build({entryPoints:['main.js'],outdir:'dist',entryNames:'app-[hash]',bundle:true,minify:true,format:'esm',target:'es2022',legalComments:'eof',metafile:true,define:{__CATALOG_URL__:JSON.stringify('./models.json?v='+catalogHash)}});
+const entry=Object.entries(output.metafile.outputs).find(([,v])=>v.entryPoint)?.[0];
+let html=await readFile('index.html','utf8');html=html.replace(/<script type="importmap">[\s\S]*?<\/script>/,'').replace('./main.js','./'+path.basename(entry));
 await writeFile('dist/index.html',html);await copyFile('models.json','dist/models.json');
 for(const model of catalog)for(const file of [model.thumbnail,...(model.type==='glb'?[model.src]:[])]){await mkdir(path.dirname(path.join('dist',file)),{recursive:true});await copyFile(file,path.join('dist',file));}
 await copyFile('node_modules/three/LICENSE','dist/THREE-LICENSE.txt');
