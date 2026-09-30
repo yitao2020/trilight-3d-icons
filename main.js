@@ -90,7 +90,7 @@ async function selectModel(id){
  try{
   if(!models.has(id)){
    if(data.type!=='glb')throw Error('Unknown built-in model: '+id);
-   status.textContent='LOADING?';
+   status.textContent='LOADING...';
    const gltf=await new GLTFLoader().loadAsync(data.src);const root=new THREE.Group();root.add(gltf.scene);
    const bounds=new THREE.Box3().setFromObject(root),size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
    gltf.scene.position.sub(center);root.scale.setScalar(2.8/Math.max(size.x,size.y,size.z,.001));
@@ -100,9 +100,9 @@ async function selectModel(id){
   activeModel=id;models.forEach((m,key)=>m.group.visible=key===id);
   const title=document.querySelector('h1');title.replaceChildren();data.title.forEach((line,i)=>{if(i)title.append(document.createElement('br'));title.append(document.createTextNode(line));});
   const desc=document.querySelector('.info p');desc.replaceChildren();(data.description||[]).forEach((line,i)=>{if(i)desc.append(document.createElement('br'));desc.append(document.createTextNode(line));});
-  document.querySelector('.edition').textContent='OBJECT STUDY ? '+String(catalog.indexOf(data)+1).padStart(3,'0')+' / TRILIGHTLAB';
+  document.querySelector('.edition').textContent='OBJECT STUDY / '+String(catalog.indexOf(data)+1).padStart(3,'0')+' / TRILIGHTLAB';
   document.querySelectorAll('[data-model]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.model===id));
-  document.querySelector('#glass').disabled=data.type==='glb';glass(false);reset();status.textContent='? LIVE 3D';
+  document.querySelector('#glass').disabled=data.type==='glb';glass(false);reset();status.textContent='LIVE 3D';
  }catch(error){if(version===selectionVersion)status.textContent='加载失败，请重试';console.error(error);}
 }
 const shelf=document.querySelector('.showcase-items');shelf.replaceChildren();
