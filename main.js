@@ -81,18 +81,18 @@ const watergun=createWatergun(renderer);scene.add(watergun.group);watergun.group
 let activeModel='amber';
 const models=new Map([['amber',{group:object}],['grenade',grenade],['watergun',watergun]]);
 let selectionVersion=0;
-let entranceMotion=false,motionTime=0;
+let idleMotion=false,motionTime=0;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 const referenceYaw=new WeakMap();
 models.forEach(model=>referenceYaw.set(model.group,model.group.rotation.y));
-const stopEntrance=()=>{entranceMotion=false;};
-controls.addEventListener('start',stopEntrance);
-document.querySelector('.controls').addEventListener('click',stopEntrance,true);
-reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)stopEntrance();});
+function setIdleMotion(on){idleMotion=on;controls.autoRotate=false;const button=document.querySelector('#rotate');button.textContent=on?'\u6682\u505c\u65cb\u8f6c':'\u81ea\u52a8\u65cb\u8f6c';button.setAttribute('aria-pressed',String(on));}
+const stopIdleMotion=()=>setIdleMotion(false);
+controls.addEventListener('start',stopIdleMotion);
+reducedMotion.addEventListener('change',()=>{if(reducedMotion.matches)stopIdleMotion();});
 window.bootProgress?.(65,'BUILDING COLLECTION');
-function reset(){entranceMotion=false;const group=models.get(activeModel)?.group;if(group){if(!referenceYaw.has(group))referenceYaw.set(group,group.rotation.y);group.rotation.y=referenceYaw.get(group);}controls.autoRotate=false;const btn=document.querySelector('#rotate');btn.textContent='\u81ea\u52a8\u65cb\u8f6c';btn.setAttribute('aria-pressed','false');camera.position.set(...(catalog.find(m=>m.id===activeModel)?.camera||[-2.35,1.7,8.3]));controls.target.set(0,.1,0);controls.update();}reset();
+function reset(){idleMotion=false;const group=models.get(activeModel)?.group;if(group){if(!referenceYaw.has(group))referenceYaw.set(group,group.rotation.y);group.rotation.y=referenceYaw.get(group);}controls.autoRotate=false;const btn=document.querySelector('#rotate');btn.textContent='\u81ea\u52a8\u65cb\u8f6c';btn.setAttribute('aria-pressed','false');camera.position.set(...(catalog.find(m=>m.id===activeModel)?.camera||[-2.35,1.7,8.3]));controls.target.set(0,.1,0);controls.update();motionTime=0;setIdleMotion(!reducedMotion.matches);}reset();
 function layout(){const {width:w,height:h}=stage.getBoundingClientRect();if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.clearViewOffset();camera.fov=THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad((innerWidth<=1199?28:29)/2))/Math.min(1,(w/h)/.8)));if(innerWidth>1199&&innerHeight>600)camera.setViewOffset(w,h,-w*.11,0,w,h);camera.updateProjectionMatrix();document.querySelector('.hint').textContent=matchMedia('(pointer:coarse)').matches?'\u5355\u6307\u65cb\u8f6c \u00b7 \u53cc\u6307\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d':'\u62d6\u62fd\u65cb\u8f6c \u00b7 \u6eda\u8f6e\u7f29\u653e \u00b7 \u53cc\u51fb\u590d\u4f4d';}layout();new ResizeObserver(layout).observe(stage);addEventListener('resize',layout);
-const rotate=document.querySelector('#rotate');rotate.onclick=()=>{controls.autoRotate=!controls.autoRotate;rotate.textContent=controls.autoRotate?'暂停旋转':'自动旋转';rotate.setAttribute('aria-pressed',controls.autoRotate);};
+const rotate=document.querySelector('#rotate');rotate.onclick=()=>setIdleMotion(!idleMotion);
 document.querySelector('#reset').onclick=reset;renderer.domElement.addEventListener('dblclick',reset);
 function glass(on){document.querySelector('#glass').setAttribute('aria-pressed',on);if(activeModel==='amber'){amber.transmission=on?.78:.48;amber.roughness=on?.12:.19;rim.transmission=on?.52:.18;}else models.get(activeModel)?.setGlass?.(on);}
 document.querySelector('#glass').onclick=e=>glass(e.target.getAttribute('aria-pressed')!=='true');
@@ -133,9 +133,9 @@ const clock=new THREE.Clock();let firstFrame=true;
 renderer.setAnimationLoop(()=>{
  const delta=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
  const current=models.get(activeModel).group;
- if(entranceMotion&&!document.hidden){motionTime+=delta;current.rotation.y=referenceYaw.get(current)+Math.sin(motionTime*.32)*.12;}
+ if(idleMotion&&!document.hidden){motionTime+=delta;current.rotation.y=referenceYaw.get(current)+Math.sin(motionTime*.32)*.12;}
  current.position.y=controls.autoRotate?Math.sin(t*.8)*.035:0;
  controls.update();renderer.render(scene,camera);
- if(firstFrame){firstFrame=false;window.bootProgress?.(100,'READY');entranceMotion=!reducedMotion.matches;}
+ if(firstFrame){firstFrame=false;window.bootProgress?.(100,'READY');}
 });
 window.addEventListener('error',e=>{const el=document.querySelector('#error');el.hidden=false;el.textContent='3D 加载失败：'+e.message;});
