@@ -109,7 +109,8 @@ async function selectModel(id){
  }catch(error){if(version===selectionVersion)status.textContent='加载失败，请重试';console.error(error);}
 }
 const shelf=document.querySelector('.showcase-items');shelf.replaceChildren();
-document.querySelector('.showcase-title').textContent='COLLECTION / '+String(catalog.length).padStart(2,'0');
+shelf.addEventListener('wheel',event=>{if(event.ctrlKey||shelf.scrollWidth<=shelf.clientWidth||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;event.preventDefault();shelf.scrollLeft+=event.deltaY;},{passive:false});
+document.querySelector('.showcase-title').textContent='COLLECTION / '+String(catalog.length).padStart(2,'0')+' / 20';
 for(const [index,data] of catalog.entries()){
  const button=document.createElement('button');button.dataset.model=data.id;button.setAttribute('aria-label','切换 '+data.title.join(' '));button.setAttribute('aria-pressed','false');
  const img=document.createElement('img');img.src=data.thumbnail;img.alt=data.title.join(' ');const label=document.createElement('span');label.textContent=String(index+1).padStart(2,'0')+' / '+(data.label||data.id).toUpperCase();button.append(img,label);button.onclick=()=>selectModel(data.id);shelf.append(button);
